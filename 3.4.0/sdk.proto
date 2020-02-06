@@ -1,0 +1,168 @@
+syntax = "proto3";
+
+package com.amazon.whitewater.auxproxy.pbuffer;
+
+//SDK --> AuxProxy
+message ProcessReady {
+  repeated string logPathsToUpload = 1;
+  int32 port = 2;
+  int32 maxConcurrentGameSessions = 3;
+}
+
+message ProcessEnding {
+}
+
+message GameSessionActivate {
+  string gameSessionId = 1;
+  int32 maxPlayers = 2;
+  int32 port =3;
+}
+
+message GameSessionTerminate {
+  string gameSessionId = 1;
+}
+
+message UpdatePlayerSessionCreationPolicy {
+  string gameSessionId = 1;
+  string newPlayerSessionCreationPolicy = 2;
+}
+
+message AcceptPlayerSession {
+  string gameSessionId = 1;
+  string playerSessionId = 2;
+}
+
+message RemovePlayerSession {
+  string gameSessionId = 1;
+  string playerSessionId = 2;
+}
+
+message ReportHealth {
+  bool healthStatus = 1;
+}
+
+message DescribePlayerSessionsRequest {
+  string gameSessionId = 1;
+  string playerId = 2;
+  string playerSessionId = 3;
+  string playerSessionStatusFilter = 4;
+  string nextToken = 5;
+  int32 limit = 6;
+}
+
+message BackfillMatchmakingRequest {
+  string ticketId = 1;
+  string gameSessionArn = 2;
+  string matchmakingConfigurationArn = 3;
+  repeated Player players = 4;
+}
+
+message StopMatchmakingRequest {
+  string ticketId = 1;
+  string gameSessionArn = 2;
+  string matchmakingConfigurationArn = 3;
+}
+
+message GetInstanceCertificate {
+}
+
+//AuxProxy --> Sdk
+message ActivateGameSession {
+  GameSession gameSession = 1;
+}
+
+message TerminateProcess {
+  int64 terminationTime = 1;
+}
+
+message DescribePlayerSessionsResponse {
+  string nextToken = 1;
+  repeated PlayerSession playerSessions = 2;
+}
+
+message UpdateGameSession {
+  GameSession gameSession = 1;
+  string updateReason = 2;
+  string backfillTicketId = 3;
+}
+
+message GetInstanceCertificateResponse {
+  string certificatePath = 1;
+  string certificateChainPath = 2;
+  string privateKeyPath = 3;
+  string hostName = 4;
+  string rootCertificatePath = 5;
+}
+
+message BackfillMatchmakingResponse {
+  string ticketId = 1;
+}
+
+//Common objects
+message Response {
+  enum Status {
+    OK = 0;
+    ERROR = 1;
+  }
+  Status status = 1;
+  string errorMessage = 2;
+}
+
+message GameLiftResponse {
+  enum Status {
+    OK = 0;
+    ERROR_400 = 1;
+    ERROR_500 = 2;
+  }
+  Status status = 1;
+  string responseData = 2;
+  string errorMessage = 3;
+}
+
+message GameSession {
+  string gameSessionId = 1;
+  string fleetId = 2;
+  string name = 3;
+  int32 maxPlayers = 4;
+  bool joinable = 5;
+  repeated GameProperty gameProperties = 6;
+  string ipAddress = 7;
+  int32 port = 8;
+  string gameSessionData = 9;
+  string matchmakerData = 10;
+  string dnsName = 11;
+}
+
+message GameProperty {
+  string key = 1;
+  string value = 2;
+}
+
+message PlayerSession {
+  string playerSessionId = 1;
+  string playerId = 2;
+  string gameSessionId = 3;
+  string fleetId = 4;
+  string ipAddress = 5;
+  string status = 6;
+  int64 creationTime = 7;
+  int64 terminationTime = 8;
+  int32 port = 9;
+  string playerData = 10;
+  string dnsName = 11;
+}
+
+message Player {
+  string playerId = 1;
+  map<string, AttributeValue> playerAttributes = 2;
+  string team = 3;
+  map<string, int32> latencyInMs = 4;
+}
+
+message AttributeValue {
+  int32 type = 1;
+  string S = 2;
+  double N = 3;
+  repeated string SL = 4;
+  map<string, double> SDM = 5;
+}
